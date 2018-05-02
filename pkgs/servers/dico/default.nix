@@ -1,5 +1,5 @@
 { fetchurl, stdenv, libtool, gettext, zlib, readline, gsasl
-, guile, python, pcre, libffi, groff }:
+, guile, python, pcre, libffi, groff, libiconv }:
 
 stdenv.mkDerivation rec {
   name = "dico-2.5";
@@ -13,8 +13,10 @@ stdenv.mkDerivation rec {
 
   # XXX: Add support for GNU SASL.
   buildInputs =
-    [ libtool gettext zlib readline gsasl guile python pcre libffi groff ];
-
+    [ libtool gettext zlib readline gsasl guile python pcre libffi groff libiconv ];
+  configureFlags = [
+    "--with-libiconv-prefix=${libiconv}"
+  ];
   # dicod fails to load modules, so the tests fail
   doCheck = false;
 
