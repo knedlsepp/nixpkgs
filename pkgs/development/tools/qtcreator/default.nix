@@ -1,5 +1,6 @@
 { stdenv, fetchurl, makeWrapper
 , qtbase, qtquickcontrols, qtscript, qtdeclarative, qmake
+, xcbuild, qtmacextras, qtwebkit
 , withDocumentation ? false
 }:
 
@@ -19,7 +20,10 @@ stdenv.mkDerivation rec {
     sha256 = "1yfrfma23xxzz8hl43g7pk7ay5lg25l9lscjlih617lyv6jmc0hl";
   };
 
-  buildInputs = [ qtbase qtscript qtquickcontrols qtdeclarative ];
+  buildInputs = [ qtbase qtscript qtquickcontrols qtdeclarative ]
+    ++ stdenv.lib.optionals stdenv.isDarwin [ xcbuild qtmacextras qtwebkit ];
+
+  dontUseXcbuild = true;
 
   nativeBuildInputs = [ qmake makeWrapper ];
 
@@ -55,6 +59,5 @@ stdenv.mkDerivation rec {
     homepage = https://wiki.qt.io/Category:Tools::QtCreator;
     license = "LGPL";
     maintainers = [ maintainers.akaWolf ];
-    platforms = [ "i686-linux" "x86_64-linux" ];
   };
 }
