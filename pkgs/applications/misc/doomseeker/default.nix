@@ -1,4 +1,5 @@
-{ stdenv, cmake, fetchFromBitbucket, pkgconfig, qtbase, qttools, qtmultimedia, zlib, bzip2 }:
+{ stdenv, cmake, fetchFromBitbucket, pkgconfig, qtbase, qttools, qtmultimedia, zlib, bzip2
+, xxd }:
 
 stdenv.mkDerivation rec {
   name = "doomseeker-${version}";
@@ -15,7 +16,15 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ qtbase qtmultimedia zlib bzip2 ];
 
-  nativeBuildInputs = [ cmake qttools pkgconfig ];
+  nativeBuildInputs = [
+    cmake
+    qttools
+    pkgconfig
+  ] ++ stdenv.lib.optionals stdenv.isDarwin [
+    xxd
+  ];
+
+  hardeningDisable = [ "format" ];
 
   enableParallelBuilding = true;
 
