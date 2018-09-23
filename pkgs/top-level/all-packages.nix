@@ -11349,6 +11349,8 @@ with pkgs;
     nvidia_x11 = linuxPackages.nvidia_x11.override { libsOnly = true; };
   };
 
+  nyan = callPackage ../development/libraries/nyan { };
+
   ocl-icd-oclhGen = oclh: callPackage ../development/libraries/ocl-icd { opencl-headers = oclh; };
   ocl-icd-oclh_1_2 = ocl-icd-oclhGen opencl-headers_1_2;
   ocl-icd-oclh_2_2 = ocl-icd-oclhGen opencl-headers_2_2;
