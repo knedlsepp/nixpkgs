@@ -20057,6 +20057,8 @@ with pkgs;
 
   onscripter-en = callPackage ../games/onscripter-en { };
 
+  openage = callPackage ../games/openage { };
+
   openarena = callPackage ../games/openarena { };
 
   opendungeons = callPackage ../games/opendungeons {
