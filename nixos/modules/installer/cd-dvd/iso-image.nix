@@ -166,6 +166,27 @@ let
       "# No refind for ia32"
   ;
 
+  shim_signed = pkgs.stdenv.mkDerivation rec {
+    name = "shim-signed-${version}";
+    version = "15-8";
+    src = pkgs.fetchurl {
+      url = "https://kojipkgs.fedoraproject.org/packages/shim/15/8/x86_64/shim-x64-15-8.x86_64.rpm";
+      sha256 = "1vsfsp7krklib5i7x35zzpl2lrnfmqzssi2r6hss8j6mgxyqkw0g";
+    };
+    nativeBuildInputs = [ pkgs.rpmextract ];
+    phases = [ "unpackPhase" "installPhase" ];
+    sourceRoot = ".";
+    unpackPhase = ''
+      rpmextract $src
+    '';
+    installPhase = ''
+     mkdir -p $out
+      pushd boot/efi/EFI/fedora
+      cp shimx64.efi mmx64.efi $out
+      popd
+    '';
+  };
+
   grubMenuCfg = ''
     #
     # Menu configuration
@@ -236,6 +257,10 @@ let
     ${pkgs.grub2_efi}/bin/grub-mkimage -o $out/EFI/boot/${if targetArch == "x64" then "bootx64" else "bootia32"}.efi -p /EFI/boot -O ${if targetArch == "x64" then "x86_64" else "i386"}-efi \
       $MODULES
     cp ${pkgs.grub2_efi}/share/grub/unicode.pf2 $out/EFI/boot/
+
+    mv $out/EFI/boot/bootx64.efi $out/EFI/boot/grubx64.efi
+    cp ${shim_signed}/shimx64.efi $out/EFI/boot/bootx64.efi
+    cp ${shim_signed}/mmx64.efi $out/EFI/boot/
 
     cat <<EOF > $out/EFI/boot/grub.cfg
 
