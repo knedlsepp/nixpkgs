@@ -9230,6 +9230,8 @@ in
 
   armadillo = callPackage ../development/libraries/armadillo {};
 
+  arrayfire = callPackage ../development/libraries/arrayfire {};
+
   arrow-cpp = callPackage ../development/libraries/arrow-cpp {};
 
   assimp = callPackage ../development/libraries/assimp { };
