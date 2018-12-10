@@ -8762,6 +8762,14 @@ with pkgs;
 
   openocd = callPackage ../development/tools/misc/openocd { };
 
+
+  libmonitor = callPackage ../development/tools/misc/libmonitor { };
+  mrnet = callPackage ../development/tools/misc/mrnet { };
+  cbtf = callPackage ../development/tools/misc/cbtf { };
+  cbtf-argonavis = callPackage ../development/tools/misc/cbtf-argonavis { };
+  cbtf-krell = callPackage ../development/tools/misc/cbtf-krell { };
+  openspeedshop = callPackage ../development/tools/misc/openspeedshop { };
+
   oprofile = callPackage ../development/tools/profiling/oprofile { };
 
   pahole = callPackage ../development/tools/misc/pahole {};
