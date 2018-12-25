@@ -8,7 +8,7 @@
 { name ? "", stdenvNoCC, nativeTools, noLibc ? false, nativeLibc, nativePrefix ? ""
 , cc ? null, libc ? null, bintools, coreutils ? null, shell ? stdenvNoCC.shell
 , zlib ? null, extraPackages ? [], extraBuildCommands ? ""
-, isGNU ? false, isClang ? cc.isClang or false, gnugrep ? null
+, isGNU ? false, isClang ? cc.isClang or false, isIntel ? cc.isIntel or false, gnugrep ? null
 , buildPackages ? {}
 }:
 
@@ -161,6 +161,13 @@ stdenv.mkDerivation {
         ln -s ${targetPrefix}clang $out/bin/${targetPrefix}cc
         export named_cc=${targetPrefix}clang
         export named_cxx=${targetPrefix}clang++
+    '' + optionalString isIntel ''
+      elif [ -e $ccPath/icc ]; then
+        wrap ${targetPrefix}icc ${./cc-wrapper.sh} $ccPath/icc
+        ln -s ${targetPrefix}icc $out/bin/${targetPrefix}cc
+        export named_cc=${targetPrefix}icc
+        export named_cxx=${targetPrefix}icpc
+    '' + ''
       fi
 
       if [ -e $ccPath/${targetPrefix}g++ ]; then
@@ -169,6 +176,11 @@ stdenv.mkDerivation {
       elif [ -e $ccPath/clang++ ]; then
         wrap ${targetPrefix}clang++ ${./cc-wrapper.sh} $ccPath/clang++
         ln -s ${targetPrefix}clang++ $out/bin/${targetPrefix}c++
+    '' + optionalString isIntel ''
+      elif [ -e $ccPath/icpc ]; then
+        wrap ${targetPrefix}icpc ${./cc-wrapper.sh} $ccPath/icpc
+        ln -s ${targetPrefix}icpc $out/bin/${targetPrefix}c++
+    '' + ''
       fi
 
       if [ -e $ccPath/cpp ]; then

@@ -5894,6 +5894,7 @@ with pkgs;
   };
 
   gcc7Stdenv = overrideCC gccStdenv gcc7;
+  intelStdenv = overrideCC gccStdenv intel-parallel-studio-xe;
 
   wrapCCMulti = cc:
     if system == "x86_64-linux" then let
@@ -6319,6 +6320,9 @@ with pkgs;
   };
 
   idris = idrisPackages.with-packages [ idrisPackages.base ] ;
+
+  intel-parallel-studio-xe = intel-parallel-studio-xe-2018;
+  intel-parallel-studio-xe-2018 = callPackage ../development/compilers/intel-parallel-studio-xe { };
 
   intercal = callPackage ../development/compilers/intercal { };
 
@@ -16024,6 +16028,7 @@ with pkgs;
   };
 
   hello = callPackage ../applications/misc/hello { };
+  hello-intel = callPackage ../applications/misc/hello { stdenv = intelStdenv; };
 
   helmholtz = callPackage ../applications/audio/pd-plugins/helmholtz { };
 
