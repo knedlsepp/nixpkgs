@@ -9,8 +9,14 @@ stdenv.mkDerivation rec {
   };
 
   doCheck = true;
-
-  meta = {
+  preConfigure = ''
+    env
+    export LC_MESSAGES=POSIX
+    export LANG=POSIX
+  '';
+  hardeningDisable = [ "stackprotector" ];
+  
+  meta = with stdenv.lib; {
     description = "A program that produces a familiar, friendly greeting";
     longDescription = ''
       GNU Hello is a program that prints "Hello, world!" when you run it.

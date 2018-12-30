@@ -23,7 +23,13 @@ let
       done
       mkdir -p $out
       cp -r opt/intel/compilers_and_libraries_* $out/
-      pushd opt/intel/compilers_and_libraries_*/linux/bin/
+      COMP_LIB_INSTALLDIR=$(echo $out/compilers_and_libraries_*\.*/linux)
+      for f in $COMP_LIB_INSTALLDIR/bin/*.sh $COMP_LIB_INSTALLDIR/bin/intel64/*.sh \
+               $COMP_LIB_INSTALLDIR/bin/*.csh $COMP_LIB_INSTALLDIR/bin/intel64/*.csh; do
+        echo "Patching $f"
+        substituteInPlace $f --replace '<INSTALLDIR>' "$COMP_LIB_INSTALLDIR"
+      done
+      pushd opt/intel/compilers_and_libraries_*/linux/bin/  
       patchShebangs link_install.sh
       ./link_install.sh -i -l $out -p $out/compilers_and_libraries_*
       popd
@@ -36,12 +42,9 @@ let
       # icc/icpc make a call to "gcc -print-search-dirs", so they need gcc in PATH
       # otherwise we get: "Requires 'install path' setting gathered from 'gcc'"
       for f in icc icpc xild xiar; do
-        echo "FUNK $f"
-        # TODO source compilervars.sh (even instead of mcpcom stuff)
-        # TODO: SOURCING DOES NOT WORK! :-(
         wrapProgram $out/bin/$f \
-          --run "source $out/bin/compilervars.sh intel64; echo $INSTALL_DIR; echo OMG" \
-          --set PATH "$(dirname $(echo $out/compilers_and_libraries_*/linux/bin/intel64/mcpcom)):${stdenv.lib.makeBinPath [ stdenv.cc ]}"
+          --run "source $out/bin/compilervars.sh intel64" \
+          --prefix PATH : "${stdenv.lib.makeBinPath [ stdenv.cc ]}"
       done
       # TODO: Use xild
     '';
@@ -67,7 +70,13 @@ let
     cc = intel_unwrapped;
     extraBuildCommands = ''
       # TODO: Clean up. Put in correct file. Make configurable.
-      echo "export INTEL_LICENSE_FILE=${license}" >> $out/nix-support/add-flags.sh
+      echo 'export INTEL_LICENSE_FILE=${license}' >> $out/nix-support/add-flags.sh
+      echo 'set +u; source ${intel_unwrapped}/bin/compilervars.sh intel64; set -u' >> $out/nix-support/setup-hook
+      # Where the F is: mcpcom
+      echo 'LIBRARY_PATH="${intel_unwrapped}/compilers_and_libraries_2018.3.222/linux/compiler/lib/intel64_lin/"'  >> $out/nix-support/setup-hook
+      echo 'LD_LIBRARY_PATH="${intel_unwrapped}/compilers_and_libraries_2018.3.222/linux/compiler/lib/intel64_lin/"'  >> $out/nix-support/setup-hook
+      echo 'echo "GRML"'  >> $out/nix-support/setup-hook
+      echo 'echo "$LD_LIBRARY_PATH"'  >> $out/nix-support/setup-hook
     '';
   };
 in intel_wrapped
