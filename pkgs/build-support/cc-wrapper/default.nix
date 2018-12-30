@@ -248,8 +248,10 @@ stdenv.mkDerivation {
 
       echo "${libc_lib}" > $out/nix-support/orig-libc
       echo "${libc_dev}" > $out/nix-support/orig-libc-dev
+    '' + optionalString isIntel ''
+        ccLDFlags+=" -L${cc}/lib64compilers_and_libraries_2019.1.144/linux/compiler/lib/intel64_lin/"
+        ccCFlags+=" -B${cc}/compilers_and_libraries_2019.1.144/linux/compiler/lib/intel64_lin/"
     ''
-
     + optionalString (!nativeTools) ''
       ##
       ## Initial CFLAGS

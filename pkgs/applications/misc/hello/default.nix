@@ -9,7 +9,13 @@ stdenv.mkDerivation rec {
   };
 
   doCheck = true;
-
+  preConfigure = ''
+    env
+    export LC_MESSAGES=POSIX
+    export LANG=POSIX
+  '';
+  hardeningDisable = [ "stackprotector" ];
+  
   meta = with stdenv.lib; {
     description = "A program that produces a familiar, friendly greeting";
     longDescription = ''
