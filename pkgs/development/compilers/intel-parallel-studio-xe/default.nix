@@ -38,6 +38,8 @@ let
     postInstall = ''
       # TODO: The offload_main program needs "libcoi_device.so.0"; not yet in nixpkgs.
       find $out -name offload_main -delete
+      find $out -name libioffload_target.so.5 -delete
+      find $out -name libiomp5.dbg -delete
 
       # icc/icpc make a call to "gcc -print-search-dirs", so they need gcc in PATH
       # otherwise we get: "Requires 'install path' setting gathered from 'gcc'"
@@ -68,6 +70,9 @@ let
   };
   intel_wrapped = wrapCCWith {
     cc = intel_unwrapped;
+    bintools = stdenv.cc.bintools;
+    libc = stdenv.cc.libc;
+
     extraBuildCommands = ''
       # TODO: Clean up. Put in correct file. Make configurable.
       echo 'export INTEL_LICENSE_FILE=${license}' >> $out/nix-support/add-flags.sh
