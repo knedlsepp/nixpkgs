@@ -1,4 +1,4 @@
-{ stdenv, lib, fetchurl, unzip
+{ stdenv, lib, fetchurl, unzip, lndir
 , qt4 ? null, qmake4Hook ? null
 , withQt5 ? false, qtbase ? null, qtmacextras ? null, qmake ? null
 }:
@@ -21,7 +21,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ (if withQt5 then qtbase else qt4) ]
     ++ lib.optional (withQt5 && stdenv.isDarwin) qtmacextras;
-  nativeBuildInputs = [ unzip ]
+  nativeBuildInputs = [ unzip lndir ]
     ++ (if withQt5 then [ qmake ] else [ qmake4Hook ]);
 
 
