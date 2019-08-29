@@ -1,7 +1,9 @@
 { lib, stdenv, makeWrapper, fetchurl, requireFile, perl, ncurses5, expat, python27, zlib
 , gcc48, gcc49, gcc5, gcc6, gcc7
 , xorg, gtk2, gdk-pixbuf, glib, fontconfig, freetype, unixODBC, alsaLib, glibc
-, addOpenGLRunpath
+, libxml2, libGLU, freeglut, libxkbcommon, pulseaudio, nss, nspr
+, addOpenGLRunpath, autoPatchelfHook
+, breakpointHook
 }:
 
 let
@@ -193,6 +195,120 @@ let
       };
     };
 
+
+  common_from_10_1 =
+    args@{ gcc, version, sha256
+    , url ? ""
+    , name ? ""
+    , python ? python27
+    , runPatches ? []
+    , enableStatic ? true
+    }:
+
+    stdenv.mkDerivation rec {
+      name = "cudatoolkit-${version}";
+      inherit version runPatches;
+
+      dontStrip = true;
+
+      src = fetchurl {
+        inherit (args) url sha256;
+      };
+
+      unpackPhase = ''
+        runHook preUnpack
+        sh $src --keep --noexec
+        cd pkg
+        runHook postUnpack
+      '';
+
+      postPatch = ''
+        sed -i -e 's,/tmp/cuda-installer.log,cuda-installer.log\x00xxxx,g' ./cuda-installer
+        patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" ./cuda-installer
+        autoPatchelf cuda-installer
+      '';
+
+      nativeBuildInputs = [
+        autoPatchelfHook
+        breakpointHook
+      ];
+
+      preBuild = ''
+        ln -s $out/targets/x86_64-linux/lib/stubs/libcuda.so libcuda.so.1
+        export LD_LIBRARY_PATH=$PWD
+      '';
+
+      buildInputs = [
+        alsaLib
+        fontconfig
+        freeglut
+        freetype
+        gcc.cc
+        glib
+        glibc
+        libGLU
+        libxkbcommon
+        libxml2
+        ncurses5
+        nspr
+        nss
+        pulseaudio
+        xorg.libX11
+        xorg.libXcomposite
+        xorg.libXcursor
+        xorg.libXdamage
+        xorg.libXext
+        xorg.libXfixes
+        xorg.libXtst
+      ];
+      installPhase = ''
+        runHook preInstall
+        ./cuda-installer --toolkit --installpath=$out/ --no-man-page --no-drm --override-driver-check --override --silent
+        runHook postInstall
+      '';
+      postInstall = lib.optionalString (!enableStatic) ''
+        find $out -name ".a" -delete
+      '' + ''
+        ln -sf $out/nsight-systems-2019.3.7.5 $out/nsight-systems-2019.3.7
+      '';
+      doInstallCheck = true;
+      postInstallCheck = let
+      in ''
+        # Smoke test binaries
+        pushd $out/bin
+        for f in *; do
+          case $f in
+            crt)                           continue;;
+            cuda-uninstaller)              continue;;
+            nvcc.profile)                  continue;;
+            nsight_ee_plugins_manage.sh)   continue;;
+            nsight-sys)                    continue;;
+            nsys-exporter)                 continue;;
+            nv-nsight-cu)                  continue;;
+            uninstall_cuda_toolkit_6.5.pl) continue;;
+            computeprof|nvvp|nsight)       continue;; # GUIs don't feature "--version"
+            *)                             echo "Executing '$f --version':"; ./$f --version;;
+          esac
+        done
+        popd
+        echo "Showing installer logs:"
+        cat cuda-installer.log
+      '';
+      passthru = {
+        cc = gcc;
+        majorVersion =
+          let versionParts = lib.splitString "." version;
+          in "${lib.elemAt versionParts 0}.${lib.elemAt versionParts 1}";
+      };
+
+      meta = with stdenv.lib; {
+        description = "A compiler for NVIDIA GPUs, math libraries, and tools";
+        homepage = "https://developer.nvidia.com/cuda-toolkit";
+        platforms = [ "x86_64-linux" ];
+        license = licenses.unfree;
+      };
+    };
+
 in rec {
   cudatoolkit_6 = common {
     version = "6.0.37";
@@ -304,5 +420,13 @@ in rec {
     gcc = gcc7;
   };
 
-  cudatoolkit_10 = cudatoolkit_10_0;
+  cudatoolkit_10_1 = common_from_10_1 {
+    version = "10.1.243";
+    url = "https://developer.download.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda_10.1.243_418.87.00_linux.run";
+    sha256 = "0caxhlv2bdq863dfp6wj7nad66ml81vasq2ayf11psvq2b12vhp7";
+
+    gcc = gcc7;
+  };
+
+  cudatoolkit_10 = cudatoolkit_10_1;
 }

@@ -1,4 +1,4 @@
-{ callPackage, cudatoolkit_7, cudatoolkit_7_5, cudatoolkit_8, cudatoolkit_9_0, cudatoolkit_9_1, cudatoolkit_9_2, cudatoolkit_10_0 }:
+{ callPackage, cudatoolkit_7, cudatoolkit_7_5, cudatoolkit_8, cudatoolkit_9_0, cudatoolkit_9_1, cudatoolkit_9_2, cudatoolkit_10_0, cudatoolkit_10_1 }:
 
 let
   generic = args: callPackage (import ./generic.nix (removeAttrs args ["cudatoolkit"])) {
@@ -65,5 +65,12 @@ in rec {
     sha256 = "18ys0apiz9afid2s6lvy9qbyi8g66aimb2a7ikl1f3dm09mciprf";
   };
 
-  cudnn_cudatoolkit_10 = cudnn_cudatoolkit_10_0;
+  cudnn_cudatoolkit_10_1 = generic rec {
+    version = "7.6.0";
+    cudatoolkit = cudatoolkit_10_1;
+    srcName = "cudnn-${cudatoolkit.majorVersion}-linux-x64-v7.6.0.64.tgz";
+    sha256 = "1msp7c27wvaqx5gxj88hag3xgkz5vrvgr72421x8djrg4bwwcmp9";
+  };
+
+  cudnn_cudatoolkit_10 = cudnn_cudatoolkit_10_1;
 }
