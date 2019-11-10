@@ -1,7 +1,7 @@
 { stdenv
 , fetchurl
 , addOpenGLRunpath
-, cudaSupport ? false, symlinkJoin, cudatoolkit, cudnn, nvidia_x11
+, cudaSupport ? false, symlinkJoin, cudatoolkit, cudnn
 }:
 
 with stdenv.lib;
@@ -20,40 +20,27 @@ let
     else unavailable;
 
   rpath = makeLibraryPath ([stdenv.cc.libc stdenv.cc.cc.lib] ++
-            optionals cudaSupport [ cudatoolkit.out cudatoolkit.lib cudnn nvidia_x11 ]);
+            optionals cudaSupport [ cudatoolkit.out cudatoolkit.lib cudnn ]);
 
   packages = import ./binary-hashes.nix;
   packageName = "${tfType}-${system}-${platform}";
   url = packages.${packageName} or unavailable;
 
-  patchLibs =
-    if stdenv.isDarwin
-    then ''
-      install_name_tool -id $out/lib/libtensorflow.dylib $out/lib/libtensorflow.dylib
-      install_name_tool -id $out/lib/libtensorflow_framework.dylib $out/lib/libtensorflow_framework.dylib
-    ''
-    else ''
-      patchelf --set-rpath "${rpath}:$out/lib" $out/lib/libtensorflow.so
-      patchelf --set-rpath "${rpath}" $out/lib/libtensorflow_framework.so
-      ${optionalString cudaSupport ''
-        addOpenGLRunpath $out/lib/libtensorflow.so $out/lib/libtensorflow_framework.so
-      ''}
-    '';
 
 in stdenv.mkDerivation rec {
   pname = "libtensorflow";
   inherit (packages) version;
 
   src = fetchurl url;
-
+  sourceRoot = ".";
   nativeBuildInputs = optional cudaSupport addOpenGLRunpath;
 
   # Patch library to use our libc, libstdc++ and others
-  buildCommand = ''
+  installPhase = ''
+    runHook preInstall
     mkdir -pv $out
     tar -C $out -xzf $src
     chmod -R +w $out
-    ${patchLibs}
 
     # Write pkgconfig file.
     mkdir $out/lib/pkgconfig
@@ -65,7 +52,25 @@ in stdenv.mkDerivation rec {
     Libs: -L$out/lib -ltensorflow
     Cflags: -I$out/include/tensorflow
     EOF
+    runHook postInstall
+
   '';
+
+  postFixup =
+    if stdenv.isDarwin
+    then ''
+      install_name_tool -id $out/lib/libtensorflow.dylib $out/lib/libtensorflow.dylib
+      install_name_tool -id $out/lib/libtensorflow_framework.dylib $out/lib/libtensorflow_framework.dylib
+    ''
+    else ''
+      patchelf --set-rpath "${rpath}:$out/lib" $out/lib/libtensorflow.so
+      patchelf --set-rpath "${rpath}" $out/lib/libtensorflow_framework.so
+      ${optionalString cudaSupport ''
+        echo "SEMPFO"
+
+        addOpenGLRunpath $out/lib/libtensorflow.so $out/lib/libtensorflow_framework.so
+      ''}
+    '';
 
   meta = {
     description = "C API for TensorFlow";
