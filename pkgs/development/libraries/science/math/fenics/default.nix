@@ -16,6 +16,7 @@
 , gtest
 , hdf5
 , mpi
+, nixosTests
 , ply
 , python
 , scotch
@@ -247,6 +248,11 @@ let
       pythonPackages.pybind11
     ];
     doCheck = false; # Tries to orte_ess_init and call ssh to localhost
+    passthru = {
+      tests = {
+        mpi-run = nixosTests.fenics;
+      };
+    };
     meta = {
       description = "Python bindings for the DOLFIN FEM compiler";
       homepage = https://fenicsproject.org/;
