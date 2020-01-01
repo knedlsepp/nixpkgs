@@ -7485,6 +7485,8 @@ in
 
   you-get = python3Packages.callPackage ../tools/misc/you-get { };
 
+  yuzu = libsForQt5.callPackage ../misc/emulators/yuzu { };
+
   zbackup = callPackage ../tools/backup/zbackup {};
 
   zbar = libsForQt5.callPackage ../tools/graphics/zbar { };
