@@ -47,6 +47,11 @@ rec {
         configureFlags = (args.configureFlags or []) ++ [
             "--disable-shared" # brrr...
           ];
+        cmakeFlags = (args.cmakeFlags or []) ++ [
+          "-DCMAKE_LINK_SEARCH_START_STATIC=ON"
+          "-DCMAKE_LINK_SEARCH_END_STATIC=ON"
+          "-DCMAKE_POLICY_DEFAULT_CMP0060=NEW"
+          ];
       });
     };
 
