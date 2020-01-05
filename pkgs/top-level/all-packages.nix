@@ -13480,6 +13480,8 @@ in
   openjpeg_2 = callPackage ../development/libraries/openjpeg/2.x.nix { };
   openjpeg = openjpeg_2;
 
+  openmesh = qt5.callPackage ../development/libraries/openmesh { };
+
   openpa = callPackage ../development/libraries/openpa { };
 
   opensaml-cpp = callPackage ../development/libraries/opensaml-cpp { };
