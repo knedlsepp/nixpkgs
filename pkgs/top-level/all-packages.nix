@@ -20134,7 +20134,9 @@ in
 
   mop = callPackage ../applications/misc/mop { };
 
-  mopidy = callPackage ../applications/audio/mopidy { };
+  mopidy = callPackage ../applications/audio/mopidy {
+    pythonPackages = python3Packages;
+  };
 
   mopidy-gmusic = callPackage ../applications/audio/mopidy/gmusic.nix { };
 
