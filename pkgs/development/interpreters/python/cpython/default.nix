@@ -28,6 +28,7 @@
 , stripTkinter ? false
 , rebuildBytecode ? true
 , stripBytecode ? false
+, static ? false
 }:
 
 assert x11Support -> tcl != null
@@ -130,12 +131,13 @@ in with passthru; stdenv.mkDerivation {
   CPPFLAGS = concatStringsSep " " (map (p: "-I${getDev p}/include") buildInputs);
   LDFLAGS = concatStringsSep " " (map (p: "-L${getLib p}/lib") buildInputs);
   LIBS = "${optionalString (!stdenv.isDarwin) "-lcrypt"} ${optionalString (ncurses != null) "-lncurses"}";
-  NIX_LDFLAGS = optionalString stdenv.isLinux "-lgcc_s";
+  NIX_LDFLAGS = optionalString (stdenv.isLinux && !static) "-lgcc_s";
   # Determinism: We fix the hashes of str, bytes and datetime objects.
   PYTHONHASHSEED=0;
 
-  configureFlags = [
+  configureFlags = optionals (!static) [
     "--enable-shared"
+  ] ++ [
     "--with-threads"
     "--without-ensurepip"
     "--with-system-expat"
@@ -169,6 +171,9 @@ in with passthru; stdenv.mkDerivation {
     # Never even try to use lchmod on linux,
     # don't rely on detecting glibc-isms.
     "ac_cv_func_lchmod=no"
+  ]  ++ optionals static [
+    "--disable-shared"
+    "LDFLAGS=-static"
   ];
 
   preConfigure = ''
@@ -262,7 +267,7 @@ in with passthru; stdenv.mkDerivation {
   # Enforce that we don't have references to the OpenSSL -dev package, which we
   # explicitly specify in our configure flags above.
   disallowedReferences =
-    stdenv.lib.optionals (openssl != null) [ openssl.dev ]
+    stdenv.lib.optionals (openssl != null && !static) [ openssl.dev ]
     ++ stdenv.lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
     # Ensure we don't have references to build-time packages.
     # These typically end up in shebangs.

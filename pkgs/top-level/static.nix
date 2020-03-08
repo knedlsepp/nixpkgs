@@ -267,5 +267,9 @@ in {
 
   python27 = super.python27.override { static = true; };
 
+  python = super.python.override { static = true; };
+  python3 = super.python3.override { static = true; };
+  python37 = super.python37.override { static = true; };
+
   libev = super.libev.override { static = true; };
 }
