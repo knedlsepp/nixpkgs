@@ -16,6 +16,9 @@ stdenv.mkDerivation rec {
 
   binPath = lib.makeBinPath [ nix coreutils gnutar gzip bzip2 ];
 
+  patches = [
+    ./allow-data.patch
+  ];
   makeFlags = [ "PREFIX=$(out)" ];
 
   postInstall = ''
