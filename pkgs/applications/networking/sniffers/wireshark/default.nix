@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pkgconfig, pcre, perl, flex, bison, gettext, libpcap, libnl, c-ares
+{ stdenv, fetchurl, fetchFromGitLab, pkgconfig, pcre, perl, flex, bison, gettext, libpcap, libnl, c-ares
 , gnutls, libgcrypt, libgpgerror, geoip, openssl, lua5, python3, libcap, glib
 , libssh, nghttp2, zlib, cmake, fetchpatch, makeWrapper
 , withQt ? true, qt5 ? null
@@ -24,6 +24,24 @@ in stdenv.mkDerivation {
     sha256 = "1amqgn94g6h6cfnsccm2zb4c73pfv1qmzi1i6h1hnbcyhhg4czfi";
   };
 
+  preConfigure = let
+    wsgd-src = fetchFromGitLab {
+      owner = "wsgd";
+      repo = "wsgd";
+      rev = "70655b70871996df7160544c5a2520c2b0b22791";
+      sha256 = "0s0ddvblvx3wikgyykjcaba2v0wyqnasxw8n2ahjgnds5pwslzps";
+    }; in
+  ''
+    cp -r ${wsgd-src} plugins/epan/generic
+    chmod -R 700 plugins/epan/generic
+    pushd plugins/epan/generic
+    cp -p  CMakeLists.302XX.Linux.txt  CMakeLists.txt
+    cp -p  cmake_wireshark_version_number.cmake.example  cmake_wireshark_version_number.cmake
+    substituteInPlace cmake_wireshark_version_number.cmake \
+      --replace "DWIRESHARK_VERSION_NUMBER=20400" "DWIRESHARK_VERSION_NUMBER=30204"
+    popd
+  '';
+
   cmakeFlags = [
     "-DBUILD_wireshark=${if withQt then "ON" else "OFF"}"
     "-DENABLE_APPLICATION_BUNDLE=${if withQt && stdenv.isDarwin then "ON" else "OFF"}"
@@ -46,7 +64,10 @@ in stdenv.mkDerivation {
     ++ optionals stdenv.isDarwin [ SystemConfiguration ApplicationServices gmp ]
     ++ optionals (withQt && stdenv.isDarwin) (with qt5; [ qtmacextras ]);
 
-  patches = [ ./wireshark-lookup-dumpcap-in-path.patch ]
+  patches = [
+    ./wireshark-lookup-dumpcap-in-path.patch
+    ./wireshark-generic-plugin.patch
+  ]
     # https://code.wireshark.org/review/#/c/23728/
     ++ stdenv.lib.optional stdenv.hostPlatform.isMusl (fetchpatch {
       name = "fix-timeout.patch";
@@ -56,10 +77,6 @@ in stdenv.mkDerivation {
 
   postPatch = ''
     sed -i -e '1i cmake_policy(SET CMP0025 NEW)' CMakeLists.txt
-  '';
-
-  preBuild = ''
-    export LD_LIBRARY_PATH="$PWD/run"
   '';
 
   postInstall = ''
