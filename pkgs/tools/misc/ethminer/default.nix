@@ -3,6 +3,7 @@
   stdenv,
   fetchFromGitHub,
   opencl-headers,
+  addOpenGLRunpath,
   cmake,
   jsoncpp,
   boost,
@@ -48,6 +49,7 @@ stdenv.mkDerivation rec {
     cmake
     pkg-config
     makeWrapper
+    addOpenGLRunpath
   ];
 
   buildInputs = [
@@ -68,8 +70,8 @@ stdenv.mkDerivation rec {
     sed -i 's/_lib_static//' libpoolprotocols/CMakeLists.txt
   '';
 
-  postInstall = ''
-    wrapProgram $out/bin/ethminer --prefix LD_LIBRARY_PATH : /run/opengl-driver/lib
+  postFixup = ''
+    addOpenGLRunpath $out/bin/ethminer
   '';
 
   meta = with lib; {

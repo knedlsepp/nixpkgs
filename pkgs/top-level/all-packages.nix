@@ -1942,7 +1942,6 @@ in
 
   libtensorflow-bin = callPackage ../development/libraries/science/math/tensorflow/bin.nix {
     cudaSupport = config.cudaSupport or false;
-    inherit (linuxPackages) nvidia_x11;
     cudatoolkit = cudatoolkit_10_0;
     cudnn = cudnn_cudatoolkit_10_0;
   };
@@ -7217,17 +7216,14 @@ in
   # https://github.com/hashicorp/nomad/blob/master/contributing/golang.md
   nomad_0_12 = callPackage ../applications/networking/cluster/nomad/0.12.nix {
     buildGoPackage = buildGo114Package;
-    inherit (linuxPackages) nvidia_x11;
     nvidiaGpuSupport = config.cudaSupport or false;
   };
   nomad_1_0 = callPackage ../applications/networking/cluster/nomad/1.0.nix {
     buildGoPackage = buildGo115Package;
-    inherit (linuxPackages) nvidia_x11;
     nvidiaGpuSupport = config.cudaSupport or false;
   };
   nomad_1_1 = callPackage ../applications/networking/cluster/nomad/1.1.nix {
     buildGoPackage = buildGo116Package;
-    inherit (linuxPackages) nvidia_x11;
     nvidiaGpuSupport = config.cudaSupport or false;
   };
 
@@ -25302,6 +25298,7 @@ in
   mod-distortion = callPackage ../applications/audio/mod-distortion { };
 
   xmr-stak = callPackage ../applications/misc/xmr-stak {
+    cudaSupport = config.cudaSupport or false;
     stdenvGcc6 = gcc6Stdenv;
   };
 
@@ -30101,7 +30098,6 @@ in
 
   cntk = callPackage ../applications/science/math/cntk {
     stdenv = gcc7Stdenv;
-    inherit (linuxPackages) nvidia_x11;
     opencv3 = opencv3WithoutCuda; # Used only for image loading.
     cudaSupport = config.cudaSupport or false;
   };
@@ -30138,7 +30134,6 @@ in
   };
 
   mxnet = callPackage ../applications/science/math/mxnet {
-    inherit (linuxPackages) nvidia_x11;
     stdenv = gcc9Stdenv;
   };
 

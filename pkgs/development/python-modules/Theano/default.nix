@@ -12,13 +12,11 @@
 , libgpuarray
 , cudaSupport ? false, cudatoolkit
 , cudnnSupport ? false, cudnn
-, nvidia_x11
 }:
 
 assert cudnnSupport -> cudaSupport;
 
-assert cudaSupport -> nvidia_x11 != null
-                   && cudatoolkit != null
+assert cudaSupport -> cudatoolkit != null
                    && cudnn != null;
 
 let

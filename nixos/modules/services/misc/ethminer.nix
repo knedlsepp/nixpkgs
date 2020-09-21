@@ -97,10 +97,6 @@ in
         Restart = "always";
       };
 
-      environment = {
-        LD_LIBRARY_PATH = "${config.boot.kernelPackages.nvidia_x11}/lib";
-      };
-
       script = ''
         ${pkgs.ethminer}/bin/.ethminer-wrapped \
           --farm-recheck ${toString cfg.recheckInterval} \

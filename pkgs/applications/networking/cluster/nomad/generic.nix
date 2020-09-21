@@ -5,7 +5,7 @@
 , sha256
 , nvidiaGpuSupport
 , patchelf
-, nvidia_x11
+, addOpenGLRunpath
 }:
 
 buildGoPackage rec {
@@ -23,7 +23,7 @@ buildGoPackage rec {
   };
 
   nativeBuildInputs = lib.optionals nvidiaGpuSupport [
-    patchelf
+    addOpenGLRunpath
   ];
 
   # ui:
@@ -44,7 +44,7 @@ buildGoPackage rec {
   # binary will not know where to look for the relevant symbols.
   postFixup = lib.optionalString nvidiaGpuSupport ''
     for bin in $out/bin/*; do
-      patchelf --add-needed "${nvidia_x11}/lib/libnvidia-ml.so" "$bin"
+      addOpenGLRunpath "$bin"
     done
   '';
 

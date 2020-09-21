@@ -1,7 +1,7 @@
 { lib, stdenv, fetchgit, fetchFromGitHub, cmake
 , openblas, blas, lapack, opencv3, libzip, boost, protobuf, mpi
 , onebitSGDSupport ? false
-, cudaSupport ? false, addOpenGLRunpath, cudatoolkit, nvidia_x11
+, cudaSupport ? false, addOpenGLRunpath, cudatoolkit
 , cudnnSupport ? cudaSupport, cudnn
 }:
 
@@ -53,7 +53,7 @@ in stdenv.mkDerivation rec {
   ] ++ lib.optionals cudaSupport [
     "--with-cuda=${cudatoolkit}"
     "--with-gdk-include=${cudatoolkit}/include"
-    "--with-gdk-nvml-lib=${nvidia_x11}/lib"
+    "--with-gdk-nvml-lib=${cudatoolkit}/targets/x86_64-linux/lib/stubs/"
     "--with-cub=${cub}"
   ] ++ lib.optional onebitSGDSupport "--1bitsgd=yes";
 

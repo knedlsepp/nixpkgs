@@ -11,8 +11,8 @@ stdenv.mkDerivation {
     sha256 = "0hv0m0k9wl2wjhhl886j7ymngnf2xz7851nfh57s1gy5bv9lgdgz";
   };
 
-  # # We only need the header files. The library files are
-  # # in the nvidia_x11 driver.
+  # We only need the header files. The library files are
+  # in the nvidia_x11 driver.
   installPhase = ''
     mkdir -p $out/include
     cp -R * $out/include

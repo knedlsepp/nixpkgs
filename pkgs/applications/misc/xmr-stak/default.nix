@@ -1,9 +1,10 @@
 { stdenv, stdenvGcc6, lib
 , fetchFromGitHub, cmake, libmicrohttpd_0_9_70, openssl
 , opencl-headers, ocl-icd, hwloc, cudatoolkit
-, devDonationLevel ? "0.0"
-, cudaSupport ? false
+, cudaSupport
 , openclSupport ? true
+, devDonationLevel ? "0.0"
+, addOpenGLRunpath
 }:
 
 let
@@ -23,18 +24,34 @@ stdenv'.mkDerivation rec {
 
   NIX_CFLAGS_COMPILE = "-O3";
 
-  cmakeFlags = lib.optional (!cudaSupport) "-DCUDA_ENABLE=OFF"
-    ++ lib.optional (!openclSupport) "-DOpenCL_ENABLE=OFF";
+  cmakeFlags = [
+    "-DCUDA_ENABLE=${if cudaSupport then "ON" else "OFF"}"
+  ] ++ lib.optionals (openclSupport) [
+    "-DOpenCL_ENABLE=ON"
+  ];
 
-  nativeBuildInputs = [ cmake ];
+  nativeBuildInputs = [
+    addOpenGLRunpath
+    cmake
+  ] ++ lib.optional cudaSupport cudatoolkit;
+
   buildInputs = [ libmicrohttpd_0_9_70 openssl hwloc ]
-    ++ lib.optional cudaSupport cudatoolkit
     ++ lib.optionals openclSupport [ opencl-headers ocl-icd ];
 
   postPatch = ''
     substituteInPlace xmrstak/donate-level.hpp \
       --replace 'fDevDonationLevel = 2.0' 'fDevDonationLevel = ${devDonationLevel}'
+
+    # Prevent runtime dependency on cudatoolkit
+    substituteInPlace CMakeLists.txt \
+      --replace 'target_link_libraries(xmrstak_cuda_backend ''${CUDA_LIBRARIES})' ""
   '';
+
+  postFixup = lib.optionalString cudaSupport ''
+    addOpenGLRunpath $out/bin/libxmrstak_cuda_backend.so
+  '';
+
+  disallowedReferences = [ cudatoolkit ];
 
   meta = with lib; {
     description = "Unified All-in-one Monero miner";

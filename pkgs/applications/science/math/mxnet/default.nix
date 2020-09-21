@@ -1,6 +1,6 @@
 { config, stdenv, lib, fetchurl, bash, cmake
 , opencv3, gtest, blas, perl
-, cudaSupport ? config.cudaSupport or false, cudatoolkit, nvidia_x11
+, cudaSupport ? config.cudaSupport or false, cudatoolkit
 , cudnnSupport ? cudaSupport, cudnn
 }:
 
@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ cmake perl ];
 
   buildInputs = [ opencv3 gtest blas.provider ]
-              ++ lib.optionals cudaSupport [ cudatoolkit nvidia_x11 ]
+              ++ lib.optionals cudaSupport [ cudatoolkit ]
               ++ lib.optional cudnnSupport cudnn;
 
   cmakeFlags =

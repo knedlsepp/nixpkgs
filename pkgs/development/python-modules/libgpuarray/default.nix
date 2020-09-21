@@ -8,12 +8,12 @@
 , six
 , nose
 , Mako
-, cudaSupport ? false, cudatoolkit , nvidia_x11
+, addOpenGLRunpath
+, cudaSupport ? true, cudatoolkit, nccl
 , openclSupport ? true, ocl-icd, clblas
 }:
 
-assert cudaSupport -> nvidia_x11 != null
-                   && cudatoolkit != null;
+assert cudaSupport -> cudatoolkit != null;
 
 buildPythonPackage rec {
   pname = "libgpuarray";
@@ -31,9 +31,18 @@ buildPythonPackage rec {
 
   configurePhase = "cmakeConfigurePhase";
 
+  # libgpuarray.so wants to dlopen:
+  #   libclBLAS.so: clblas
+  #   libclblast.so: clblast (not yet packaged)
+  #   libnvrtc.so: cudatoolkit (NVRTC)
+  #   libcublast.so: cudatoolkit (cublas)
+  #   libnccl.so: nccl
+  #   libcuda.so: nvidia_x11 (via addOpenGLRunpath)
+  #   libOpenCL.so: ocl-icd
+
   libraryPath = lib.makeLibraryPath (
     []
-    ++ lib.optionals cudaSupport [ cudatoolkit.lib cudatoolkit.out nvidia_x11 ]
+    ++ lib.optionals cudaSupport [ cudatoolkit.lib cudatoolkit.out nccl ]
     ++ lib.optionals openclSupport ([ clblas ] ++ lib.optional (!stdenv.isDarwin) ocl-icd)
   );
 
@@ -55,6 +64,7 @@ buildPythonPackage rec {
     }
 
     fixRunPath $out/lib/libgpuarray.so
+    addOpenGLRunpath $out/lib/libgpuarray.so
   '';
 
   propagatedBuildInputs = [
@@ -63,7 +73,7 @@ buildPythonPackage rec {
     Mako
   ];
 
-  nativeBuildInputs = [ cmake ];
+  nativeBuildInputs = [ cmake addOpenGLRunpath ];
 
   buildInputs = [
     cython

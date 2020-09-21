@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, makeWrapper, ocl-icd, vulkan-loader, linuxPackages }:
+{ lib, stdenv, fetchurl, makeWrapper, ocl-icd, vulkan-loader }:
 
 stdenv.mkDerivation rec {
   pname = "geekbench";
@@ -19,7 +19,6 @@ stdenv.mkDerivation rec {
     cp -r geekbench.plar geekbench5 geekbench_x86_64 $out/bin
 
     # needed for compute benchmark
-    ln -s ${linuxPackages.nvidia_x11}/lib/libcuda.so $out/lib/
     ln -s ${ocl-icd}/lib/libOpenCL.so $out/lib/
     ln -s ${ocl-icd}/lib/libOpenCL.so.1 $out/lib/
     ln -s ${vulkan-loader}/lib/libvulkan.so $out/lib/

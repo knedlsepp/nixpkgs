@@ -64,9 +64,6 @@ in
       wantedBy = [ "multi-user.target" ];
       bindsTo = [ "network-online.target" ];
       after = [ "network-online.target" ];
-      environment = mkIf cfg.cudaSupport {
-        LD_LIBRARY_PATH = "${pkgs.linuxPackages_latest.nvidia_x11}/lib";
-      };
 
       preStart = concatStrings (flip mapAttrsToList cfg.configFiles (fn: content: ''
         ln -sf '${pkgs.writeText "xmr-stak-${fn}" content}' '${fn}'
