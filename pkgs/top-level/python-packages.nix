@@ -3685,6 +3685,8 @@ in {
 
   miniupnpc = callPackage ../development/python-modules/miniupnpc { };
 
+  mirakuru = callPackage ../development/python-modules/mirakuru { };
+
   misaka = callPackage ../development/python-modules/misaka { };
 
   mistune = callPackage ../development/python-modules/mistune { };
@@ -4547,6 +4549,8 @@ in {
   portalocker = callPackage ../development/python-modules/portalocker { };
 
   portend = callPackage ../development/python-modules/portend { };
+
+  port-for = callPackage ../development/python-modules/port-for { };
 
   portpicker = callPackage ../development/python-modules/portpicker { };
 
@@ -5499,6 +5503,8 @@ in {
   pytest-click = callPackage ../development/python-modules/pytest-click { };
 
   pytestcov = callPackage ../development/python-modules/pytest-cov { };
+
+  pytest-rabbitmq = callPackage ../development/python-modules/pytest-rabbitmq { };
 
   pytest-cram = callPackage ../development/python-modules/pytest-cram { };
 
