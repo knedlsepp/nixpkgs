@@ -7849,6 +7849,8 @@ in
 
   time = callPackage ../tools/misc/time { };
 
+  timemory = callPackage ../tools/misc/timemory { };
+
   tweet-hs = haskell.lib.justStaticExecutables haskellPackages.tweet-hs;
 
   tweeny = callPackage ../development/libraries/tweeny { };
