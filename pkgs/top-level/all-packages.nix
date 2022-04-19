@@ -15866,6 +15866,8 @@ with pkgs;
 
   hammer = callPackage ../development/tools/parsing/hammer { };
 
+  r2ghidra = callPackage ../development/tools/analysis/r2ghidra { };
+
   rdocker = callPackage ../development/tools/rdocker { };
 
   redis-dump = callPackage ../development/tools/redis-dump { };
