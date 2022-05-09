@@ -39,7 +39,7 @@
 
 let
   pname = "RStudio";
-  version = "1.4.1717";
+  version = "1.4.1743";
   RSTUDIO_VERSION_MAJOR = lib.versions.major version;
   RSTUDIO_VERSION_MINOR = lib.versions.minor version;
   RSTUDIO_VERSION_PATCH = lib.versions.patch version;
@@ -48,7 +48,7 @@ let
     owner = "rstudio";
     repo = "rstudio";
     rev = "v${version}";
-    sha256 = "sha256-9c1bNsf8kJjpcZ2cMV/pPNtXQkFOntX29a1cdnXpllE=";
+    sha256 = "sha256-ofVdRMn2VXwX6NqjC39NiuDMFRFkfrg159KrMPmYjSU=";
   };
 
   mathJaxSrc = fetchurl {
