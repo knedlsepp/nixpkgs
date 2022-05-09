@@ -132,6 +132,11 @@ in
         url = "https://src.fedoraproject.org/rpms/rstudio/raw/5bda2e290c9e72305582f2011040938d3e356906/f/0004-use-system-node.patch";
         sha256 = "sha256-P1Y07RB/ceFNa749nyBUWSE41eiiZgt43zVcmahvfZM=";
       })
+      # Vendored Catch2 update from https://github.com/rstudio/rstudio/pull/10546 to address glibc 2.34 compatibility
+      (fetchpatch {
+        url = "https://github.com/rstudio/rstudio/commit/a8e6b693e26880d50cbfb04d6a3d3198637f4d9e.patch";
+        sha256 = "sha256-owsezOGriJpF/2tZk8+Aju/MdYnAbaz54zWLMVYbCuI=";
+      })
     ];
 
     postPatch = ''
