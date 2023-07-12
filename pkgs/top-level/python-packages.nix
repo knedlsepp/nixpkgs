@@ -2091,6 +2091,8 @@ self: super: with self; {
 
   conda = callPackage ../development/python-modules/conda { };
 
+  conda-lock = callPackage ../development/python-modules/conda-lock { };
+
   confection = callPackage ../development/python-modules/confection { };
 
   configargparse = callPackage ../development/python-modules/configargparse { };
@@ -3297,6 +3299,8 @@ self: super: with self; {
   enocean = callPackage ../development/python-modules/enocean { };
 
   enrich = callPackage ../development/python-modules/enrich { };
+
+  ensureconda = callPackage ../development/python-modules/ensureconda { };
 
   entrance = callPackage ../development/python-modules/entrance {
     routerFeatures = false;

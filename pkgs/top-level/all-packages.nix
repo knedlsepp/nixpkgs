@@ -6799,6 +6799,8 @@ with pkgs;
 
   conda = callPackage ../tools/package-management/conda { };
 
+  conda-lock = with python39Packages; toPythonApplication conda-lock;
+
   conduktor = callPackage ../applications/misc/conduktor { };
 
   console-bridge = callPackage ../development/libraries/console-bridge { };
